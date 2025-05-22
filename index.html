@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lista de Tarefas Completa</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <h1>Lista de Tarefas</h1>
+
+  <form id="taskForm">
+    <label for="taskName">Nome da Tarefa:</label>
+    <input type="text" id="taskName" required placeholder="Digite o nome da tarefa" />
+
+    <label for="taskDesc">Descrição:</label>
+    <textarea id="taskDesc" rows="3" placeholder="Digite a descrição (opcional)"></textarea>
+
+    <label>Data:</label>
+    <div id="calendarContainer">
+      <div id="calendarHeader">
+        <button type="button" id="prevMonthBtn" aria-label="Mês anterior">&#8592;</button>
+        <div id="monthYear"></div>
+        <button type="button" id="nextMonthBtn" aria-label="Próximo mês">&#8594;</button>
+      </div>
+      <div id="weekDays">
+        <div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div><div>Dom</div>
+      </div>
+      <div id="calendar"></div>
+    </div>
+
+    <label for="taskTime">Hora:</label>
+    <div id="timeSelectors">
+      <select id="hourSelect"></select> :
+      <select id="minuteSelect"></select>
+    </div>
+
+    <input type="hidden" id="taskDateTime" name="taskDateTime" required />
+
+    <button type="submit">Adicionar Tarefa</button>
+  </form>
+
+  <ul id="taskList"></ul>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
