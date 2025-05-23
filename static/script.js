@@ -22,6 +22,8 @@ function init() {
   populateTimeSelectors();
   setupNavigation();
   setupForm();
+
+  loadTasksFromLocalStorage();  
 }
 
 function setupForm() {
@@ -41,7 +43,11 @@ function setupForm() {
       return;
     }
 
-    addTask({ name, desc, datetime });
+    const task = { name, desc, datetime };
+
+    addTask(task, false);
+    saveTasksToLocalStorage();
+
     taskForm.reset();
 
     currentYear = now.getFullYear();
@@ -122,6 +128,7 @@ function createCalendar(year, month) {
 
     dayEl.addEventListener('click', () => {
       if (dayEl.classList.contains('disabled')) return;
+
       selectDay(dayEl, year, month, day);
     });
 
@@ -156,6 +163,7 @@ function selectDay(dayEl, year, month, day) {
   dayEl.classList.add('selected');
 
   selectedDate = new Date(year, month, day);
+
   updateTimeSelectorsBasedOnDate();
   updateHiddenDateTime();
 }
@@ -216,8 +224,8 @@ function updateTimeSelectorsBasedOnDate() {
 
     updateMinuteOptions(currentHour, currentMinute);
   } else {
-    [...hourSelect.options].forEach((opt) => opt.disabled = false);
-    [...minuteSelect.options].forEach((opt) => opt.disabled = false);
+    [...hourSelect.options].forEach((opt) => (opt.disabled = false));
+    [...minuteSelect.options].forEach((opt) => (opt.disabled = false));
 
     if (!hourSelect.value) hourSelect.value = 0;
     if (!minuteSelect.value) minuteSelect.value = 0;
@@ -266,13 +274,13 @@ function updateHiddenDateTime() {
   let month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
   let day = selectedDate.getDate().toString().padStart(2, '0');
 
-  let hour = hourSelect.value.toString().padStart(2, '0');
-  let minute = minuteSelect.value.toString().padStart(2, '0');
+  let hour = hourSelect.value !== '' ? hourSelect.value.toString().padStart(2, '0') : '00';
+  let minute = minuteSelect.value !== '' ? minuteSelect.value.toString().padStart(2, '0') : '00';
 
   hiddenInput.value = `${year}-${month}-${day}T${hour}:${minute}`;
 }
 
-function addTask({ name, desc, datetime }) {
+function addTask({ name, desc, datetime }, fromLocalStorage = false) {
   const li = document.createElement('li');
 
   const taskName = document.createElement('div');
@@ -286,6 +294,7 @@ function addTask({ name, desc, datetime }) {
   const taskDatetime = document.createElement('div');
   taskDatetime.className = 'task-datetime';
   taskDatetime.textContent = formatDateTime(datetime);
+  taskDatetime.dataset.datetime = datetime;
 
   const actions = document.createElement('div');
   actions.className = 'actions';
@@ -296,16 +305,14 @@ function addTask({ name, desc, datetime }) {
 
   toggleBtn.addEventListener('click', () => {
     li.classList.toggle('completed');
-    toggleBtn.textContent = li.classList.contains('completed') ? 'Desmarcar tarefa' : 'Marcar como concluída';
-    toggleBtn.classList.toggle('completed');
-  });
-
-  const editBtn = document.createElement('button');
-  editBtn.className = 'btn btn-edit';
-  editBtn.textContent = 'Editar';
-
-  editBtn.addEventListener('click', () => {
-    alert('Funcionalidade de editar não implementada nesta versão.');
+    if (li.classList.contains('completed')) {
+      toggleBtn.textContent = 'Desmarcar tarefa';
+      toggleBtn.classList.add('completed');
+    } else {
+      toggleBtn.textContent = 'Marcar como concluída';
+      toggleBtn.classList.remove('completed');
+    }
+    saveTasksToLocalStorage();
   });
 
   const deleteBtn = document.createElement('button');
@@ -315,11 +322,11 @@ function addTask({ name, desc, datetime }) {
   deleteBtn.addEventListener('click', () => {
     if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
       taskList.removeChild(li);
+      saveTasksToLocalStorage();
     }
   });
 
   actions.appendChild(toggleBtn);
-  actions.appendChild(editBtn);
   actions.appendChild(deleteBtn);
 
   li.appendChild(taskName);
@@ -328,6 +335,10 @@ function addTask({ name, desc, datetime }) {
   li.appendChild(actions);
 
   taskList.appendChild(li);
+
+  if (!fromLocalStorage) {
+    saveTasksToLocalStorage();
+  }
 }
 
 function formatDateTime(datetime) {
@@ -336,6 +347,20 @@ function formatDateTime(datetime) {
   const [hour, minute] = timePart.split(':');
 
   return `${day}/${month}/${year} ${hour}:${minute}`;
+}
+
+function saveTasksToLocalStorage() {
+  const tasks = [...taskList.children].map(li => ({
+    name: li.querySelector('.task-name').textContent,
+    desc: li.querySelector('.task-desc') ? li.querySelector('.task-desc').textContent : '',
+    datetime: li.querySelector('.task-datetime').dataset.datetime
+  }));
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+function loadTasksFromLocalStorage() {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks.forEach(task => addTask(task, true));
 }
 
 init();
