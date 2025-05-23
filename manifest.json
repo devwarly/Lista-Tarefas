@@ -1,6 +1,6 @@
 {
   "name": "Lista de Tarefas",
-  "short_name": "Lista De Tarefas",
+  "short_name": "Lista",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",

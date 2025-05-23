@@ -10,8 +10,24 @@
   <link rel="icon" type="image/png" sizes="512x512" href="imagens/Lista de Tarefas.png">
 
   <style>
-    #installBtn {
+    #installContainer {
       display: none;
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: Arial, sans-serif;
+      color: #555;
+      background: linear-gradient(90deg, #70acec, #e1fbff);
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 1px 1px 2px 2px #00000052;
+    }
+
+    #installContainer p {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    #installBtn {
       background-color: #007BFF;
       color: white;
       border: none;
@@ -19,21 +35,25 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
-      margin: 20px 0;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,123,255,0.3);
     }
 
     #installBtn:hover {
       background-color: #0056b3;
+      box-shadow: 0 6px 12px rgba(0,86,179,0.5);
     }
   </style>
 </head>
 
 <body>
 
-  <h1>Lista de Tarefas</h1>
+  <div id="installContainer">
+    <p>Instale o app para acessar suas tarefas mais rápido!</p>
+    <button id="installBtn">Instalar App</button>
+  </div>
 
-  <button id="installBtn">Instalar App</button>
+  <h1><span class="icon">📝</span> Lista de Tarefas</h1>
 
   <form id="taskForm">
     <label for="taskName">Nome da Tarefa:</label>
@@ -68,10 +88,11 @@
 
   <ul id="taskList"></ul>
 
+  <!-- Script principal -->
   <script src="static/script.js"></script>
 
+  <!-- Script para Service Worker e botão de instalação -->
   <script>
-    // Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
         .then(function(registration) {
@@ -82,14 +103,14 @@
         });
     }
 
-    // Botão de Instalar
     let deferredPrompt;
+    const installContainer = document.getElementById('installContainer');
     const installBtn = document.getElementById('installBtn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'inline-block';
+      installContainer.style.display = 'block';
     });
 
     installBtn.addEventListener('click', () => {
@@ -102,7 +123,7 @@
             console.log('Usuário recusou a instalação');
           }
           deferredPrompt = null;
-          installBtn.style.display = 'none';
+          installContainer.style.display = 'none';
         });
       }
     });

@@ -10,7 +10,7 @@ const minuteSelect = document.getElementById('minuteSelect');
 const hiddenInput = document.getElementById('taskDateTime');
 
 let selectedDate = null;
-let currentYear, currentMonth; // para controle do calendário
+let currentYear, currentMonth;
 
 const now = new Date();
 
@@ -42,10 +42,8 @@ function setupForm() {
     }
 
     addTask({ name, desc, datetime });
-
     taskForm.reset();
 
-    // Reseta para mês e ano atuais após inserir a tarefa
     currentYear = now.getFullYear();
     currentMonth = now.getMonth();
     createCalendar(currentYear, currentMonth);
@@ -64,7 +62,6 @@ function setupNavigation() {
       newYear--;
     }
 
-    // Não deixa ir para meses antes do atual (limita a hoje)
     if (
       newYear < now.getFullYear() ||
       (newYear === now.getFullYear() && newMonth < now.getMonth())
@@ -87,7 +84,7 @@ function setupNavigation() {
       newMonth = 0;
       newYear++;
     }
-    // Sem limite superior aqui (pode navegar para qualquer futuro)
+
     currentMonth = newMonth;
     currentYear = newYear;
 
@@ -104,11 +101,9 @@ function createCalendar(year, month) {
   const lastDay = new Date(year, month + 1, 0);
   const totalDays = lastDay.getDate();
 
-  // Ajusta o dia da semana para segunda = 0 ... domingo = 6
   let startDay = firstDay.getDay();
   startDay = startDay === 0 ? 6 : startDay - 1;
 
-  // Cria células vazias até o primeiro dia do mês
   for (let i = 0; i < startDay; i++) {
     const emptyCell = document.createElement('div');
     calendar.appendChild(emptyCell);
@@ -119,24 +114,20 @@ function createCalendar(year, month) {
     dayEl.className = 'day';
     dayEl.textContent = day;
 
-    // Data desse dia para comparações
     const dateCandidate = new Date(year, month, day);
 
-    // Bloquear dias antes de hoje
     if (isBeforeDay(dateCandidate, now)) {
       dayEl.classList.add('disabled');
     }
 
     dayEl.addEventListener('click', () => {
       if (dayEl.classList.contains('disabled')) return;
-
       selectDay(dayEl, year, month, day);
     });
 
     calendar.appendChild(dayEl);
   }
 
-  // Se o mês/ano é atual, seleciona o dia atual automaticamente (se não for passado ainda)
   if (year === now.getFullYear() && month === now.getMonth()) {
     const todayCell = [...calendar.children].find(
       (c) => c.textContent == now.getDate() && !c.classList.contains('disabled')
@@ -145,14 +136,12 @@ function createCalendar(year, month) {
       todayCell.click();
     }
   } else {
-    // Se o mês/ano é futuro e não selecionou nada ainda, limpa seleção
     selectedDate = null;
     updateHiddenDateTime();
   }
 }
 
 function isBeforeDay(date1, date2) {
-  // Compara só ano, mês e dia, sem hora
   return (
     date1.getFullYear() < date2.getFullYear() ||
     (date1.getFullYear() === date2.getFullYear() && date1.getMonth() < date2.getMonth()) ||
@@ -167,27 +156,14 @@ function selectDay(dayEl, year, month, day) {
   dayEl.classList.add('selected');
 
   selectedDate = new Date(year, month, day);
-
-  // Ao selecionar um dia, ajusta as horas/minutos para desabilitar opções anteriores caso seja hoje
   updateTimeSelectorsBasedOnDate();
-
   updateHiddenDateTime();
 }
 
 function getMonthName(month) {
   const months = [
-    'Janeiro',
-    'Fevereiro',
-    'Março',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
   return months[month];
 }
@@ -210,9 +186,7 @@ function populateTimeSelectors() {
     minuteSelect.appendChild(option);
   }
 
-  // Adiciona event listeners para atualizar a data e hora selecionada
   hourSelect.addEventListener('change', () => {
-    // Se horário inválido, corrige
     validateTimeSelection();
     updateHiddenDateTime();
   });
@@ -229,32 +203,22 @@ function updateTimeSelectorsBasedOnDate() {
   const selectedDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
 
   if (selectedDay.getTime() === today.getTime()) {
-    // É hoje, então bloqueia horas anteriores à hora atual
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
 
-    // Atualiza opções de horas
     [...hourSelect.options].forEach((opt) => {
-      if (parseInt(opt.value) < currentHour) {
-        opt.disabled = true;
-      } else {
-        opt.disabled = false;
-      }
+      opt.disabled = parseInt(opt.value) < currentHour;
     });
 
-    // Se hora selecionada for menor que hora atual, muda para hora atual
     if (parseInt(hourSelect.value) < currentHour) {
       hourSelect.value = currentHour;
     }
 
-    // Atualiza minutos conforme hora selecionada
     updateMinuteOptions(currentHour, currentMinute);
   } else {
-    // Não é hoje, habilita tudo
-    [...hourSelect.options].forEach((opt) => (opt.disabled = false));
-    [...minuteSelect.options].forEach((opt) => (opt.disabled = false));
+    [...hourSelect.options].forEach((opt) => opt.disabled = false);
+    [...minuteSelect.options].forEach((opt) => opt.disabled = false);
 
-    // Ajusta hora e minuto para zero se nenhum selecionado ainda
     if (!hourSelect.value) hourSelect.value = 0;
     if (!minuteSelect.value) minuteSelect.value = 0;
   }
@@ -264,19 +228,10 @@ function updateMinuteOptions(currentHour, currentMinute) {
   const selectedHour = parseInt(hourSelect.value);
 
   [...minuteSelect.options].forEach((opt) => {
-    const val = parseInt(opt.value);
-    if (selectedHour === currentHour && val < currentMinute) {
-      opt.disabled = true;
-    } else {
-      opt.disabled = false;
-    }
+    opt.disabled = selectedHour === currentHour && parseInt(opt.value) < currentMinute;
   });
 
-  // Se minuto selecionado for menor que atual e hora é atual, corrige
-  if (
-    selectedHour === currentHour &&
-    parseInt(minuteSelect.value) < currentMinute
-  ) {
+  if (selectedHour === currentHour && parseInt(minuteSelect.value) < currentMinute) {
     minuteSelect.value = currentMinute;
   }
 }
@@ -295,10 +250,7 @@ function validateTimeSelection() {
       hourSelect.value = currentHour;
     }
 
-    if (
-      parseInt(hourSelect.value) === currentHour &&
-      parseInt(minuteSelect.value) < currentMinute
-    ) {
+    if (parseInt(hourSelect.value) === currentHour && parseInt(minuteSelect.value) < currentMinute) {
       minuteSelect.value = currentMinute;
     }
   }
@@ -314,8 +266,8 @@ function updateHiddenDateTime() {
   let month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
   let day = selectedDate.getDate().toString().padStart(2, '0');
 
-  let hour = hourSelect.value !== '' ? hourSelect.value.toString().padStart(2, '0') : '00';
-  let minute = minuteSelect.value !== '' ? minuteSelect.value.toString().padStart(2, '0') : '00';
+  let hour = hourSelect.value.toString().padStart(2, '0');
+  let minute = minuteSelect.value.toString().padStart(2, '0');
 
   hiddenInput.value = `${year}-${month}-${day}T${hour}:${minute}`;
 }
@@ -344,13 +296,8 @@ function addTask({ name, desc, datetime }) {
 
   toggleBtn.addEventListener('click', () => {
     li.classList.toggle('completed');
-    if (li.classList.contains('completed')) {
-      toggleBtn.textContent = 'Desmarcar tarefa';
-      toggleBtn.classList.add('completed');
-    } else {
-      toggleBtn.textContent = 'Marcar como concluída';
-      toggleBtn.classList.remove('completed');
-    }
+    toggleBtn.textContent = li.classList.contains('completed') ? 'Desmarcar tarefa' : 'Marcar como concluída';
+    toggleBtn.classList.toggle('completed');
   });
 
   const editBtn = document.createElement('button');
@@ -384,7 +331,6 @@ function addTask({ name, desc, datetime }) {
 }
 
 function formatDateTime(datetime) {
-  // datetime no formato yyyy-mm-ddThh:mm
   const [datePart, timePart] = datetime.split('T');
   const [year, month, day] = datePart.split('-');
   const [hour, minute] = timePart.split(':');
@@ -393,4 +339,3 @@ function formatDateTime(datetime) {
 }
 
 init();
-                                                                                                                                                        
