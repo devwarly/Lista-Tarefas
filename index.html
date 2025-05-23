@@ -7,12 +7,33 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="imagens/Lista de Tarefas.png">
-<link rel="icon" type="image/png" sizes="512x512" href="imagens/Lista de Tarefas.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="imagens/Lista de Tarefas.png">
 
+  <style>
+    #installBtn {
+      display: none;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 20px 0;
+      transition: background-color 0.3s ease;
+    }
+
+    #installBtn:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
+
 <body>
 
   <h1>Lista de Tarefas</h1>
+
+  <button id="installBtn">Instalar App</button>
 
   <form id="taskForm">
     <label for="taskName">Nome da Tarefa:</label>
@@ -47,10 +68,10 @@
 
   <ul id="taskList"></ul>
 
-  <script src="/static/script.js"></script>
-  <script src="/static/service-worker.js"></script>
+  <script src="static/script.js"></script>
 
   <script>
+    // Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
         .then(function(registration) {
@@ -60,6 +81,31 @@
           console.log('Falha ao registrar o Service Worker:', error);
         });
     }
+
+    // Botão de Instalar
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-block';
+    });
+
+    installBtn.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Usuário aceitou instalar o app');
+          } else {
+            console.log('Usuário recusou a instalação');
+          }
+          deferredPrompt = null;
+          installBtn.style.display = 'none';
+        });
+      }
+    });
   </script>
 
 </body>
