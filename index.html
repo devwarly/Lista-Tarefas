@@ -1,133 +1,86 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lista de Tarefas</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" sizes="192x192" href="imagens/Lista de Tarefas.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="imagens/Lista de Tarefas.png">
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADS FLIX - INÍCIO</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <nav class="nav-top">
+        <div class="nav-left">
+          <img
+            class="logo-adsflix"
+            src="imagens/AdsFlix_logo_4k_transparent.png"
+            alt=""
+          />
+        </div>
 
-  <style>
-    #installContainer {
-      display: none;
-      text-align: center;
-      margin-bottom: 20px;
-      font-family: Arial, sans-serif;
-      color: #555;
-      background: linear-gradient(90deg, #70acec, #e1fbff);
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 1px 1px 2px 2px #00000052;
-    }
+        <div class="nav-center">
+          <input class="search-input" type="text" placeholder="Buscar..." />
+          <button onclick="pesquisar()" class="seach-icon"><i class="bi bi-search"></i></button>
+        </div>
 
-    #installContainer p {
-      font-size: 1rem;
-      margin-bottom: 8px;
-    }
+        <div class="nav-right">
+          <div class="cad-flex"><p>Entrar</p></div>
+          <div class="cad-flex"><p>Cadastre-se</p></div>
+        </div>
+      </nav>
 
-    #installBtn {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0,123,255,0.3);
-    }
+      <nav class="nav-select-op">
+        <ul>
+          <li class="nav-active"><a href="index.html">INÍCIO</a></li>
+          <li><a href="filmes.html">FILMES</a></li>
+          <li><a href="series.html">SÉRIES</a></li>
+          <li><a href="lancamentos.html">LANÇAMENTOS</a></li>
+        </ul>
 
-    #installBtn:hover {
-      background-color: #0056b3;
-      box-shadow: 0 6px 12px rgba(0,86,179,0.5);
-    }
-  </style>
-</head>
+        <div class="div-assine">
+          <a href="#">
+            <p>Assine a AdsFlix</p>
+          </a>
+        </div>
+      </nav>
+    </header>
 
-<body>
+    <section class="trailer-sec">
+      <img class="conclave_img" src="imagens/conclave_img.png" alt="Conclave">
+      <div class="infs-filme">
+        <div class="adsflix-trailer">
+          <img src="imagens/AdsFlix_logo_4k_transparent.png" alt="" />
+        </div>
+        <div>
+          <h1>Conclave</h1>
+        </div>
+        <div>
+          <p>
+            Após a morte repentina do Sumo Pontífice, o Cardeal Lawrence é
+            encarregado de escolher o novo Papa. Com os líderes da Igreja
+            Católica reunidos no Vaticano, ele precisará enfrentar segredos e
+            conspirações que podem abalar os alicerces da Igreja.
+          </p>
+        </div>
 
-  <div id="installContainer">
-    <p>Instale o app para acessar suas tarefas mais rápido!</p>
-    <button id="installBtn">Instalar App</button>
-  </div>
+        <div class="opcoes-trailer">
+          <div>
+            <a href="trailer.html">
+              <button class="play-trailer"><i class="bi bi-play-fill"></i>Assistir Trailer</button>
+            </a>
+          </div>
 
-  <h1><span class="icon">📝</span> Lista de Tarefas</h1>
-
-  <form id="taskForm">
-    <label for="taskName">Nome da Tarefa:</label>
-    <input type="text" id="taskName" required placeholder="Digite o nome da tarefa" />
-
-    <label for="taskDesc">Descrição:</label>
-    <textarea id="taskDesc" rows="3" placeholder="Digite a descrição (opcional)"></textarea>
-
-    <label>Data:</label>
-    <div id="calendarContainer">
-      <div id="calendarHeader">
-        <button type="button" id="prevMonthBtn" aria-label="Mês anterior">&#8592;</button>
-        <div id="monthYear"></div>
-        <button type="button" id="nextMonthBtn" aria-label="Próximo mês">&#8594;</button>
+          <div class="favoritar">
+            <i id="iconFavoritoDesativado" class="bi bi-star"></i>
+            <h3>Favoritar</h3>
+          </div>
+        </div>
       </div>
-      <div id="weekDays">
-        <div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div><div>Dom</div>
-      </div>
-      <div id="calendar"></div>
-    </div>
+    </section>
 
-    <label for="taskTime">Hora:</label>
-    <div id="timeSelectors">
-      <select id="hourSelect"></select> :
-      <select id="minuteSelect"></select>
-    </div>
-
-    <input type="hidden" id="taskDateTime" name="taskDateTime" required />
-
-    <button type="submit">Adicionar Tarefa</button>
-  </form>
-
-  <ul id="taskList"></ul>
-
-  <!-- Script principal -->
-  <script src="static/script.js"></script>
-
-  <!-- Script para Service Worker e botão de instalação -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(function(registration) {
-          console.log('Service Worker registrado com sucesso:', registration);
-        })
-        .catch(function(error) {
-          console.log('Falha ao registrar o Service Worker:', error);
-        });
-    }
-
-    let deferredPrompt;
-    const installContainer = document.getElementById('installContainer');
-    const installBtn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installContainer.style.display = 'block';
-    });
-
-    installBtn.addEventListener('click', () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('Usuário aceitou instalar o app');
-          } else {
-            console.log('Usuário recusou a instalação');
-          }
-          deferredPrompt = null;
-          installContainer.style.display = 'none';
-        });
-      }
-    });
-  </script>
-
-</body>
+    <script src="static/app.js"></script>
+  </body>
 </html>
